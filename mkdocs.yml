@@ -59,7 +59,7 @@ nav:
       - api/tree/fit_tree.md
       - api/tree/nj_tree.md
       - api/tree/random_trees.md
-    - Substitution Models:
+    - Substitution models:
       - api/model/model_finder.md
       - api/model/ModelFinderResult.md
       - api/model/Model.md
@@ -67,12 +67,12 @@ nav:
       - api/model/SubstitutionModel.md
       - api/model/FreqType.md
       - api/model/RateModel.md
-    - Genetic Distances:
+    - Genetic distances:
       - api/genetic_distance/jc_distances.md
-    - Tree Distances:
+    - Tree distances:
       - api/tree_distance/robinson_foulds.md
   - Apps:
-    - Available Apps: apps/available_help.py
+    - Available apps: apps/available_help.py
     - Selecting models for phylogenetic analysis: apps/model_finder.py
     - Estimate a phylogenetic tree: apps/phylo.py
     - Fit a model to one tree: apps/fit_tree.py
