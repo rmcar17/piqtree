@@ -8,6 +8,13 @@ from pathlib import Path
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 from setuptools import setup
 
+# Function to find all DLLs in a directory
+def find_dlls(directory):
+    return [os.path.join(directory, f) for f in os.listdir(directory) if f.endswith('.dll')]
+
+DLL_PATH = "C:/Users/rmcar/Documents/Projects/Python/piqtree/src/piqtree/_libiqtree"
+dlls = find_dlls(DLL_PATH)
+
 LIBRARY_DIR = "src/piqtree/_libiqtree"
 
 
@@ -42,17 +49,38 @@ else:
     openmp_include = None
     library_dirs = []
 
+# ext_modules = [
+#     Pybind11Extension(
+#         "_piqtree",
+#         ["src/piqtree/_libiqtree/_piqtree.cpp"],
+#         library_dirs=[
+#             *library_dirs,
+#             LIBRARY_DIR,
+#         ],
+#         libraries=["iqtree2", "z", *openmp_libs],
+#         extra_compile_args=openmp_flags,
+#         include_dirs=[openmp_include] if openmp_include else [],
+#     ),
+# ]
+
 ext_modules = [
     Pybind11Extension(
         "_piqtree",
         ["src/piqtree/_libiqtree/_piqtree.cpp"],
         library_dirs=[
-            *library_dirs,
-            LIBRARY_DIR,
+            # *library_dirs,
+            # LIBRARY_DIR,
+            "C:/Users/rmcar/Documents/Projects/Python/piqtree/src/piqtree/_libiqtree"
         ],
-        libraries=["iqtree2", "z", *openmp_libs],
-        extra_compile_args=openmp_flags,
-        include_dirs=[openmp_include] if openmp_include else [],
+        # libraries=["iqtree2", "z", *openmp_libs],
+        libraries=["bridge"],
+        # extra_compile_args=["-std=c++11"],
+        # extra_link_args=[f"-L{LIBRARY_DIR}", "-lbridge"],
+        # include_dirs=[openmp_include] if openmp_include else [],
+        package_data={
+        '': ['*.dll'],
+        },
+        data_files=[(DLL_PATH, dlls)]
     ),
 ]
 
