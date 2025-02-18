@@ -7,6 +7,7 @@
 using namespace std;
 
 namespace py = pybind11;
+// extern "C" __declspec(dllimport) void ExampleFunction();
 
 /*
  * Calculates the robinson fould distance between two trees
@@ -95,7 +96,7 @@ PYBIND11_MODULE(_piqtree, m) {
 
   //   m.attr("__iqtree_version__") = version();
 
-  m.def("iq_robinson_fould", &my_c_robinson_fould,
+  m.def("iq_robinson_fould", &robinson_fould,
         "Calculates the robinson fould distance between two trees");
   //   m.def("iq_random_tree", &random_tree,
   //         "Generates a set of random phylogenetic trees. tree_gen_mode "

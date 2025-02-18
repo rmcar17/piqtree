@@ -1,3 +1,0 @@
-LIBRARY bridge
-EXPORTS
-    my_c_robinson_fould

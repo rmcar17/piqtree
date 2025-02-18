@@ -10,7 +10,7 @@ from setuptools import setup
 
 # Function to find all DLLs in a directory
 def find_dlls(directory):
-    return [os.path.join(directory, f) for f in os.listdir(directory) if f.endswith('.dll')]
+    return [os.path.join(directory, f).replace("\\","/") for f in os.listdir(directory) if f.endswith('.dll')]
 
 DLL_PATH = "C:/Users/rmcar/Documents/Projects/Python/piqtree/src/piqtree/_libiqtree"
 dlls = find_dlls(DLL_PATH)
@@ -70,12 +70,13 @@ ext_modules = [
         library_dirs=[
             # *library_dirs,
             # LIBRARY_DIR,
-            "C:/Users/rmcar/Documents/Projects/Python/piqtree/src/piqtree/_libiqtree"
+            "C:/Users/rmcar/Documents/Projects/Python/piqtree/src/piqtree/_libiqtree",
+            # "C:/Users/rmcar/Documents/Projects/Python/piqtree/src/piqtree/_libiqtree/libiqtree2.dll"
         ],
         # libraries=["iqtree2", "z", *openmp_libs],
-        libraries=["bridge"],
-        # extra_compile_args=["-std=c++11"],
-        # extra_link_args=[f"-L{LIBRARY_DIR}", "-lbridge"],
+        libraries=["iqtree2"],
+        # extra_compile_args=["C:/Users/rmcar/Documents/Projects/Python/piqtree/src/piqtree/_libiqtree/libiqtree2.dll"],
+        # extra_link_args=[f"-L{LIBRARY_DIR}", "-llibiqtree2"],
         # include_dirs=[openmp_include] if openmp_include else [],
         package_data={
         '': ['*.dll'],
@@ -83,6 +84,7 @@ ext_modules = [
         data_files=[(DLL_PATH, dlls)]
     ),
 ]
+
 
 setup(
     ext_modules=ext_modules,
