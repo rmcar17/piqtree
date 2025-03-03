@@ -1,0 +1,12 @@
+EXPORTS
+    _ZN9__gnu_cxx11char_traitsIcE2eqERKcS3_ @1
+    _ZN9__gnu_cxx11char_traitsIcE6lengthEPKc @2
+    _ZNSt11char_traitsIcE6lengthEPKc @3
+    _ZNSt15__new_allocatorIcED2Ev @4
+    _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_Alloc_hiderD1Ev @5
+    _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_St20forward_iterator_tag @6
+    _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC1IS3_EEPKcRKS3_ @7
+    _ZZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_St20forward_iterator_tagEN6_GuardC1EPS4_ @8
+    _ZZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_St20forward_iterator_tagEN6_GuardD1Ev @9
+    bridge_rf @10
+    main @11

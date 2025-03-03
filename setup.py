@@ -50,9 +50,7 @@ ext_modules = [
             *library_dirs,
             LIBRARY_DIR,
         ],
-        libraries=["iqtree2", "z", *openmp_libs],
-        extra_compile_args=openmp_flags,
-        include_dirs=[openmp_include] if openmp_include else [],
+        libraries=["bridge"],
     ),
 ]
 
