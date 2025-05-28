@@ -11,6 +11,11 @@ jobs:
   upload-source:
     runs-on: ubuntu-latest
 
+    env:
+      VERSION: ${{ github.ref_name }}
+      TARBALL: piqtree-${{ github.ref_name }}.tar.gz
+
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -19,14 +24,19 @@ jobs:
 
       - name: Make Tarball
         run: |
-          ver=${GITHUB_REF#refs/tags/}
-          tar czf ../piqtree-${ver}.tar.gz \
-            --transform "s,^\.,piqtree-${ver}," \
+          tar czf "../$TARBALL" \
+            --transform "s,^\.,piqtree-${VERSION}," \
             --exclude-vcs .
+          mv "../$TARBALL" "$TARBALL"
 
-      - name: Upload Full Source to GitHub Release
+      - name: Compute SHA256 Checksum
+        run: sha256sum "$TARBALL" > "$TARBALL.sha256"
+
+      - name: Upload Full Source and SHA256 to GitHub Release
         uses: softprops/action-gh-release@v2.2.2
         with:
-          files: ../piqtree-${{ github.ref_name }}.tar.gz
+          files: |
+            ${{ env.TARBALL }}
+            ${{ env.TARBALL }}.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
