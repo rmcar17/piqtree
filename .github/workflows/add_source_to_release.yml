@@ -24,10 +24,10 @@ jobs:
 
       - name: Make Tarball
         run: |
-          tar czf "$TARBALL" \
+          tar czf "../$TARBALL" \
             --transform "s,^\.,piqtree-${VERSION}," \
-            --exclude-vcs \
-            --exclude="*.tar.gz" .
+            --exclude-vcs .
+          mv "../$TARBALL" "$TARBALL"
 
       - name: Compute SHA256 Checksum
         run: sha256sum "$TARBALL" > "$TARBALL.sha256"
