@@ -13,7 +13,7 @@ jobs:
 
     env:
       VERSION: ${{ github.ref_name }}
-      TARBALL: ../piqtree-${{ github.ref_name }}.tar.gz
+      TARBALL: piqtree-${{ github.ref_name }}.tar.gz
 
     steps:
       - uses: actions/checkout@v4
@@ -25,7 +25,8 @@ jobs:
         run: |
           tar czf "$TARBALL" \
             --transform "s,^\.,piqtree-${VERSION}," \
-            --exclude-vcs .
+            --exclude-vcs \
+            --exclude="*.tar.gz" .
 
       - name: Compute SHA256 Checksum
         run: sha256sum "$TARBALL" > "$TARBALL.sha256"
