@@ -77,7 +77,7 @@ doc = [
 [project.entry-points."cogent3.app"]
 piqtree_phylo = "piqtree._app:piqtree_phylo"
 piqtree_fit = "piqtree._app:piqtree_fit"
-piqtree_random_trees = "piqtree._app:piqtree_random_trees"
+piqtree_random_tree = "piqtree._app:piqtree_random_tree"
 piqtree_jc_dists = "piqtree._app:piqtree_jc_dists"
 piqtree_nj = "piqtree._app:piqtree_nj"
 piqtree_mfinder = "piqtree._app:piqtree_mfinder"
