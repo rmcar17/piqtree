@@ -100,10 +100,22 @@ ext_modules = [
     ),
 ]
 
+
+class StripBuildExt(build_ext):
+    def run(self) -> None:
+        super().run()
+
+        system = platform.system()
+        flag = "-x" if system == "Darwin" else "--strip-unneeded"
+        for ext in self.extensions:
+            ext_path = self.get_ext_fullpath(ext.name)
+            subprocess.run(["strip", flag, ext_path], check=True)
+
+
 setup(
     name="piqtree",
     ext_modules=ext_modules,
-    cmdclass={"build_ext": build_ext},
+    cmdclass={"build_ext": StripBuildExt},
     zip_safe=False,
     package_data={"piqtree": ["_libiqtree/*.dll"]},
 )
