@@ -1,6 +1,6 @@
 """Functions for calling IQ-TREE as a library."""
 
-from ._aln import simulate_alignment
+# from ._aln import simulate_alignment
 from ._jc_distance import jc_distances
 from ._model_finder import ModelFinderResult, ModelResultValue, model_finder
 from ._random_tree import TreeGenMode, random_tree
@@ -19,5 +19,5 @@ __all__ = [
     "nj_tree",
     "random_tree",
     "robinson_foulds",
-    "simulate_alignment",
+    # "simulate_alignment",
 ]
