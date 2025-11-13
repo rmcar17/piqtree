@@ -1,4 +1,5 @@
 from typing import cast
+
 import numpy as np
 import pytest
 from cogent3 import get_app, make_tree
