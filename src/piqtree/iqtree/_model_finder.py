@@ -2,7 +2,7 @@
 
 import dataclasses
 from collections.abc import Iterable
-from typing import Any, cast, reveal_type
+from typing import Any, cast
 
 import yaml
 from _piqtree import iq_model_finder
