@@ -1,0 +1,5 @@
+Old IQ-TREE Version
+
+Took 18.67 seconds
+
+New IQ-TREE Version
