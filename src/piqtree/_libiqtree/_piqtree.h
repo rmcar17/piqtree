@@ -140,4 +140,6 @@ extern "C" StringResult consensus_tree(StringArray& trees, double minsup = 0.5);
  */
 extern "C" StringResult version();
 
+extern "C" void iqtree_free(void *p);
+
 #endif /* _PIQTREE_H */

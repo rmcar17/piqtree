@@ -1,0 +1,26 @@
+diff --git a/main/libiqtree_fun.h b/main/libiqtree_fun.h
+index a3151e759..2b8d31102 100644
+--- a/main/libiqtree_fun.h
++++ b/main/libiqtree_fun.h
+@@ -141,4 +141,6 @@ extern "C" StringResult version();
+  */
+ extern "C" StringResult simulate_alignment(const char* tree, const char* subst_model, int seed, const char* partition_info = "", const char* partition_type = "", int seq_length = 1000, double insertion_rate = 0, double deletion_rate = 0, const char* root_seq = "", int num_threads = 1, const char* insertion_size_distribution = "", const char* deletion_size_distribution = "", int population_size = -1);
+ 
++extern "C" void iqtree_free(void *p);
++
+ #endif /* LIBIQTREE2_FUN */
+diff --git a/main/main.cpp b/main/main.cpp
+index 521e4d085..cfa274894 100644
+--- a/main/main.cpp
++++ b/main/main.cpp
+@@ -3365,6 +3365,10 @@ extern "C" StringResult simulate_alignment(const char* tree, const char* subst_m
+     return output;
+ }
+ 
++extern "C" void iqtree_free(void *p) {
++    if (p) free(p);
++}
++
+ // ----------------------------------------------
+ // function for performing plylogenetic analysis
+ // ----------------------------------------------
