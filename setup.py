@@ -100,6 +100,9 @@ class StripBuildExt(build_ext):
         super().run()
 
         system = platform.system()
+        if system == "Windows":
+            return
+
         flag = "-x" if system == "Darwin" else "--strip-unneeded"
         for ext in self.extensions:
             ext_path = self.get_ext_fullpath(ext.name)
