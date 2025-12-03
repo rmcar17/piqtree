@@ -10,16 +10,17 @@ index a3151e759..2b8d31102 100644
 +
  #endif /* LIBIQTREE2_FUN */
 diff --git a/main/main.cpp b/main/main.cpp
-index 521e4d085..cfa274894 100644
+index 521e4d085..de9dafebe 100644
 --- a/main/main.cpp
 +++ b/main/main.cpp
-@@ -3365,6 +3365,10 @@ extern "C" StringResult simulate_alignment(const char* tree, const char* subst_m
+@@ -3365,6 +3365,11 @@ extern "C" StringResult simulate_alignment(const char* tree, const char* subst_m
      return output;
  }
  
 +extern "C" void iqtree_free(void *p) {
 +    if (p) free(p);
 +}
++
 +
  // ----------------------------------------------
  // function for performing plylogenetic analysis
