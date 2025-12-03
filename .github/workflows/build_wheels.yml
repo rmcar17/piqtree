@@ -63,6 +63,12 @@ jobs:
         if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
 
+      - name: Apply IQ-TREE free patch
+        if: runner.os == 'Windows'
+        run: |
+          cd iqtree3
+          git apply ../free.patch
+
       - name: Build Wheels
         uses: pypa/cibuildwheel@v3.3.0
         env: # Can specify per os - e.g. CIBW_BEFORE_ALL_LINUX, CIBW_BEFORE_ALL_MACOS, CIBW_BEFORE_ALL_WINDOWS 
