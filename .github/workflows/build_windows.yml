@@ -1,0 +1,88 @@
+name: Build Wheels
+
+on: [workflow_dispatch]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Wheels for ${{matrix.platform_id}} on ${{matrix.os}}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        # Windows x86_64
+        - os: windows-latest
+          platform_id: win_amd64
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install Boost
+        if: runner.os == 'Windows'
+        uses: MarkusJx/install-boost@v2.5.1
+        id: install-boost
+        with:
+          boost_version: 1.84.0
+          platform_version: 2022
+          toolset: mingw
+
+      - name: Setup MSVC Developer Command Prompt
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Apply IQ-TREE free patch
+        run: |
+          cd iqtree3
+          git apply ../free.patch
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: 3.13
+
+      - name: Build IQ-TREE lib
+        run: |
+          set Boost_INCLUDE_DIR='${{ steps.install-boost.outputs.BOOST_ROOT }}/include' 
+          set Boost_LIBRARY_DIRS='${{ steps.install-boost.outputs.BOOST_ROOT }}/lib'
+          bash ./build_tools/before_all_windows.sh
+
+      - name: Build wheel manually
+        run: |
+          pip install setuptools wheel pybind11 delvewheel
+          python setup.py bdist_wheel
+
+      - name: Install wheel
+        run: |
+          pip install dist/piqtree-0.7.0-cp313-cp313-win_amd64.whl
+          pip install pytest pytest-mock
+
+      - name: Upload Wheel
+        uses: actions/upload-artifact@v5
+        with:
+          name: windows-wheel
+          path: ./dist/*.whl
+
+      - name: Test wheel
+        run: |
+          pytest
+
+      - name: Build Wheels
+        uses: pypa/cibuildwheel@v3.3.0
+        env: # Can specify per os - e.g. CIBW_BEFORE_ALL_LINUX, CIBW_BEFORE_ALL_MACOS, CIBW_BEFORE_ALL_WINDOWS 
+          CIBW_BEFORE_ALL_WINDOWS: bash ./build_tools/before_all_windows.sh
+          CIBW_ENVIRONMENT_WINDOWS: Boost_INCLUDE_DIR='${{ steps.install-boost.outputs.BOOST_ROOT }}/include' Boost_LIBRARY_DIRS='${{ steps.install-boost.outputs.BOOST_ROOT }}/lib'
+          CIBW_ARCHS_WINDOWS: ${{endsWith(matrix.platform_id, '_amd64') && 'AMD64' || 'ARM64'}} 
+          CIBW_BUILD: "*${{matrix.platform_id}}"
+          CIBW_TEST_REQUIRES: pytest pytest-mock
+          CIBW_TEST_COMMAND: pytest {package}/tests
+
+      - name: Upload Wheels
+        uses: actions/upload-artifact@v5
+        with:
+          name: cibw-wheels-${{ matrix.platform_id }}
+          path: ./wheelhouse/*.whl
