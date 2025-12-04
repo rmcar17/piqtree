@@ -46,9 +46,12 @@ jobs:
           python-version: 3.13
 
       - name: Build IQ-TREE lib
+        env:
+          Boost_INCLUDE_DIR: ${{ steps.install-boost.outputs.BOOST_ROOT }}/include
+          Boost_LIBRARY_DIRS: ${{ steps.install-boost.outputs.BOOST_ROOT }}/lib
         run: |
-          set Boost_INCLUDE_DIR='${{ steps.install-boost.outputs.BOOST_ROOT }}/include' 
-          set Boost_LIBRARY_DIRS='${{ steps.install-boost.outputs.BOOST_ROOT }}/lib'
+          echo "Boost include: $Boost_INCLUDE_DIR"
+          echo "Boost libs:   $Boost_LIBRARY_DIRS"
           bash ./build_tools/before_all_windows.sh
 
       - name: Build wheel manually
