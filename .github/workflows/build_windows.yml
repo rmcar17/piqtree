@@ -75,7 +75,7 @@ jobs:
       #     python -m pytest tests/test_iqtree/test_build_tree.py
 
       - name: Build Wheels
-        uses: pypa/cibuildwheel@v3.1.3
+        uses: pypa/cibuildwheel@v3.2.1
         env: # Can specify per os - e.g. CIBW_BEFORE_ALL_LINUX, CIBW_BEFORE_ALL_MACOS, CIBW_BEFORE_ALL_WINDOWS 
           CIBW_BEFORE_ALL_WINDOWS: bash ./build_tools/before_all_windows.sh
           # CIBW_BEFORE_BUILD_WINDOWS: "pip install delvewheel"
