@@ -41,47 +41,47 @@ jobs:
           cd iqtree3
           git apply ../free.patch
 
-      - uses: actions/setup-python@v6
-        with:
-          python-version: 3.13
+      # - uses: actions/setup-python@v6
+      #   with:
+      #     python-version: 3.13
 
-      - name: Build IQ-TREE lib
-        env:
-          Boost_INCLUDE_DIR: ${{ steps.install-boost.outputs.BOOST_ROOT }}/include
-          Boost_LIBRARY_DIRS: ${{ steps.install-boost.outputs.BOOST_ROOT }}/lib
-        run: |
-          echo "Boost include: $Boost_INCLUDE_DIR"
-          echo "Boost libs:   $Boost_LIBRARY_DIRS"
-          bash ./build_tools/before_all_windows.sh
+      # - name: Build IQ-TREE lib
+      #   env:
+      #     Boost_INCLUDE_DIR: ${{ steps.install-boost.outputs.BOOST_ROOT }}/include
+      #     Boost_LIBRARY_DIRS: ${{ steps.install-boost.outputs.BOOST_ROOT }}/lib
+      #   run: |
+      #     echo "Boost include: $Boost_INCLUDE_DIR"
+      #     echo "Boost libs:   $Boost_LIBRARY_DIRS"
+      #     bash ./build_tools/before_all_windows.sh
 
-      - name: Build wheel manually
-        run: |
-          pip install setuptools wheel pybind11 delvewheel
-          python setup.py bdist_wheel
+      # - name: Build wheel manually
+      #   run: |
+      #     pip install setuptools wheel pybind11 delvewheel
+      #     python setup.py bdist_wheel
 
-      - name: Install wheel
-        run: |
-          pip install dist/piqtree-0.7.0-cp313-cp313-win_amd64.whl
+      # - name: Install wheel
+      #   run: |
+      #     pip install dist/piqtree-0.7.0-cp313-cp313-win_amd64.whl
 
-      - name: Upload Wheel
-        uses: actions/upload-artifact@v5
-        with:
-          name: windows-wheel
-          path: ./dist/*.whl
+      # - name: Upload Wheel
+      #   uses: actions/upload-artifact@v5
+      #   with:
+      #     name: windows-wheel
+      #     path: ./dist/*.whl
 
-      - name: Test wheel
-        run: |
-          pip install pytest pytest-mock
-          python -m pytest tests/test_iqtree/test_build_tree.py
+      # - name: Test wheel
+      #   run: |
+      #     pip install pytest pytest-mock
+      #     python -m pytest tests/test_iqtree/test_build_tree.py
 
       - name: Build Wheels
-        uses: pypa/cibuildwheel@v3.3.0
+        uses: pypa/cibuildwheel@v3.1.3
         env: # Can specify per os - e.g. CIBW_BEFORE_ALL_LINUX, CIBW_BEFORE_ALL_MACOS, CIBW_BEFORE_ALL_WINDOWS 
           CIBW_BEFORE_ALL_WINDOWS: bash ./build_tools/before_all_windows.sh
-          CIBW_BEFORE_BUILD_WINDOWS: "pip install delvewheel"
-          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >
-            delvewheel repair -w {dest_dir} {wheel}
-            --add-path "%GITHUB_WORKSPACE%\\src\\piqtree\\_libiqtree"
+          # CIBW_BEFORE_BUILD_WINDOWS: "pip install delvewheel"
+          # CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >
+          #   delvewheel repair -w {dest_dir} {wheel}
+          #   --add-path "%GITHUB_WORKSPACE%\\src\\piqtree\\_libiqtree"
           CIBW_ENVIRONMENT_WINDOWS: Boost_INCLUDE_DIR='${{ steps.install-boost.outputs.BOOST_ROOT }}/include' Boost_LIBRARY_DIRS='${{ steps.install-boost.outputs.BOOST_ROOT }}/lib'
           CIBW_ARCHS_WINDOWS: ${{endsWith(matrix.platform_id, '_amd64') && 'AMD64' || 'ARM64'}} 
           CIBW_BUILD: "*${{matrix.platform_id}}"

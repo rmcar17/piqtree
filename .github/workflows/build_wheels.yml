@@ -80,7 +80,7 @@ jobs:
           CIBW_ARCHS_WINDOWS: ${{endsWith(matrix.platform_id, '_amd64') && 'AMD64' || 'ARM64'}} 
           CIBW_BUILD: "*${{matrix.platform_id}}"
           CIBW_TEST_REQUIRES: pytest pytest-mock
-          CIBW_TEST_COMMAND: python -m piqtree._cibw_check {package}/tests
+          CIBW_TEST_COMMAND: pytest {package}/tests
 
       - name: Upload Wheels
         uses: actions/upload-artifact@v5
