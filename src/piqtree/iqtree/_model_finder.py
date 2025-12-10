@@ -39,7 +39,7 @@ class ModelResultValue:
     def from_string(cls, val: str) -> "ModelResultValue":
         """Parse the string produced by IQ-TREE model_finder for a given model."""
         try:
-            lnL, nfp, tree_length = val.split()  # noqa: N806
+            lnL, nfp, tree_length = val.split()[:3]  # noqa: N806
             return cls(lnL=float(lnL), nfp=int(nfp), tree_length=float(tree_length))
         except ValueError as e:
             msg = f"Error parsing string '{val}'"
@@ -128,6 +128,7 @@ def model_finder(
     rate_set: Iterable[str] | None = None,
     rand_seed: int | None = None,
     num_threads: int | None = None,
+    other_options: str = "",
 ) -> ModelFinderResult:
     """Find the models of best fit for an alignment using ModelFinder.
 
@@ -149,6 +150,8 @@ def model_finder(
     num_threads: int | None, optional
         Number of threads for IQ-TREE to use, by default None (single-threaded).
         If 0 is specified, IQ-TREE attempts to find the optimal number of threads.
+    other_options: str, optional
+        Additional command line options for IQ-TREE.
 
     Returns
     -------
@@ -182,6 +185,7 @@ def model_finder(
             ",".join(freq_set),
             ",".join(rate_set),
             num_threads,
+            other_options,
         ),
     )
     return ModelFinderResult(raw_data=raw, source=source)

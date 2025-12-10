@@ -88,6 +88,7 @@ def build_tree(
     rand_seed: int | None = None,
     bootstrap_replicates: int | None = None,
     num_threads: int | None = None,
+    other_options: str = "",
 ) -> PhyloNode:
     """Reconstruct a phylogenetic tree.
 
@@ -108,6 +109,8 @@ def build_tree(
     num_threads: int | None, optional
         Number of threads for IQ-TREE to use, by default None (single-threaded).
         If 0 is specified, IQ-TREE attempts to find the optimal number of threads.
+    other_options: str, optional
+        Additional command line options for IQ-TREE.
 
     Returns
     -------
@@ -137,6 +140,7 @@ def build_tree(
             rand_seed,
             bootstrap_replicates,
             num_threads,
+            other_options,
         ),
     )
     return _process_tree_yaml(yaml_result, names, model)
@@ -147,6 +151,7 @@ def fit_tree(
     tree: PhyloNode,
     model: Model | str,
     num_threads: int | None = None,
+    other_options: str = "",
     *,
     bl_fixed: bool = False,
 ) -> PhyloNode:
@@ -171,6 +176,8 @@ def fit_tree(
         Branch lengths will be treated as constant in this case, with any unspecified
         branch lengths still being optimised. Otherwise if False, branch lengths are
         fitted to the tree whether provided or not. By default False.
+    other_options: str, optional
+        Additional command line options for IQ-TREE.
 
     Returns
     -------
@@ -197,6 +204,7 @@ def fit_tree(
             bl_fixed,
             0,
             num_threads,
+            other_options,
         ),
     )
     return _process_tree_yaml(yaml_result, names, model)

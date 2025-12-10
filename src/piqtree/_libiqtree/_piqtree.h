@@ -71,7 +71,8 @@ extern "C" StringResult build_tree(StringArray& names,
                                    const char* model,
                                    int rand_seed = 0,
                                    int bootstrap_rep = 0,
-                                   int num_thres = 1);
+                                   int num_thres = 1,
+                                   const char* other_options = NULL);
 
 /*
  * Perform phylogenetic analysis on the input alignment
@@ -87,7 +88,8 @@ extern "C" StringResult fit_tree(StringArray& names,
                                  const char* intree,
                                  bool blfix = false,
                                  int rand_seed = 0,
-                                 int num_thres = 1);
+                                 int num_thres = 1,
+                                 const char* other_options = NULL);
 
 /*
  * Perform phylogenetic analysis with ModelFinder
@@ -106,7 +108,8 @@ extern "C" StringResult modelfinder(StringArray& names,
                                     const char* model_set = "",
                                     const char* freq_set = "",
                                     const char* rate_set = "",
-                                    int num_thres = 1);
+                                    int num_thres = 1,
+                                    const char* other_options = NULL);
 
 /*
  * Build pairwise JC distance matrix
@@ -136,8 +139,13 @@ extern "C" StringResult build_njtree(StringArray& names,
 extern "C" StringResult consensus_tree(StringArray& trees, double minsup = 0.5);
 
 /*
- * verion number
+ * version number
  */
 extern "C" StringResult version();
+
+/*
+ * Free memory allocated by IQ-TREE
+ */
+extern "C" void iqtree_free(void* p);
 
 #endif /* _PIQTREE_H */
