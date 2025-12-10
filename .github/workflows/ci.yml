@@ -60,6 +60,20 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew install llvm
+          
+          if [[ "$(uname -m)" == "arm64" ]]; then
+            echo "PATH=/opt/homebrew/opt/llvm/bin:$PATH" >> $GITHUB_ENV
+            echo "LLVM_CONFIG=/opt/homebrew/opt/llvm/bin/llvm-config" >> $GITHUB_ENV
+            echo "LLVM_DIR=/opt/homebrew/opt/llvm/lib/cmake/llvm" >> $GITHUB_ENV
+            echo "LDFLAGS=-L/opt/homebrew/opt/llvm/lib" >> $GITHUB_ENV
+            echo "CPPFLAGS=-I/opt/homebrew/opt/llvm/include" >> $GITHUB_ENV
+          else
+            echo "PATH=/usr/local/opt/llvm/bin:$PATH" >> $GITHUB_ENV
+            echo "LLVM_CONFIG=/usr/local/opt/llvm/bin/llvm-config" >> $GITHUB_ENV
+            echo "LLVM_DIR=/usr/local/opt/llvm/lib/cmake/llvm" >> $GITHUB_ENV
+            echo "LDFLAGS=-L/usr/local/opt/llvm/lib" >> $GITHUB_ENV
+            echo "CPPFLAGS=-I/usr/local/opt/llvm/include" >> $GITHUB_ENV
+          fi
 
       - name: Install llvm (Windows)
         if: runner.os == 'Windows'
