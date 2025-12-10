@@ -64,11 +64,14 @@ jobs:
           else
             brew install llvm@20
 
-            echo "PATH=/usr/local/opt/llvm@20/bin:$PATH" >> $GITHUB_ENV
-            echo "LLVM_CONFIG=/usr/local/opt/llvm@20/bin/llvm-config" >> $GITHUB_ENV
-            echo "LLVM_DIR=/usr/local/opt/llvm@20/lib/cmake/llvm" >> $GITHUB_ENV
-            echo "LDFLAGS=-L/usr/local/opt/llvm@20/lib" >> $GITHUB_ENV
-            echo "CPPFLAGS=-I/usr/local/opt/llvm@20/include" >> $GITHUB_ENV
+            LLVM20_PREFIX="$(brew --prefix llvm@20)"
+          
+            echo "PATH=$LLVM20_PREFIX/bin:$PATH" >> $GITHUB_ENV
+            echo "LLVM_CONFIG=$LLVM20_PREFIX/bin/llvm-config" >> $GITHUB_ENV
+            echo "LLVM_DIR=$LLVM20_PREFIX/lib/cmake/llvm" >> $GITHUB_ENV
+            echo "CMAKE_PREFIX_PATH=$LLVM20_PREFIX/lib/cmake:$CMAKE_PREFIX_PATH" >> $GITHUB_ENV
+            echo "LDFLAGS=-L$LLVM20_PREFIX/lib $LDFLAGS" >> $GITHUB_ENV
+            echo "CPPFLAGS=-I$LLVM20_PREFIX/include $CPPFLAGS" >> $GITHUB_ENV
           fi
 
 
