@@ -59,31 +59,17 @@ jobs:
       - name: Install llvm (macOS)
         if: runner.os == 'macOS'
         run: |
-          brew install llvm
-
-          # On ARM we keep the previous behaviour (it was working for you).
           if [[ "$(uname -m)" == "arm64" ]]; then
-            echo "ARM mac: no env overrides needed (keeping existing behavior)"
-            exit 0
+            brew install llvm
+          else
+            brew install llvm@20
+
+            echo "PATH=/usr/local/opt/llvm@20/bin:$PATH" >> $GITHUB_ENV
+            echo "LLVM_CONFIG=/usr/local/opt/llvm@20/bin/llvm-config" >> $GITHUB_ENV
+            echo "LLVM_DIR=/usr/local/opt/llvm@20/lib/cmake/llvm" >> $GITHUB_ENV
+            echo "LDFLAGS=-L/usr/local/opt/llvm@20/lib" >> $GITHUB_ENV
+            echo "CPPFLAGS=-I/usr/local/opt/llvm@20/include" >> $GITHUB_ENV
           fi
-
-          # On Intel macs, Homebrew's `llvm` may be v21; llvmlite requires LLVM 20.
-          # Install and use the llvm@20 formula and export envs pointing at it.
-          brew install llvm@20
-
-          LLVM20_PREFIX="$(brew --prefix llvm@20)"
-          if [ -z "$LLVM20_PREFIX" ]; then
-            echo "Failed to determine llvm@20 prefix via 'brew --prefix llvm@20'." >&2
-            exit 1
-          fi
-
-          echo "PATH=$LLVM20_PREFIX/bin:$PATH" >> $GITHUB_ENV
-          echo "LLVM_CONFIG=$LLVM20_PREFIX/bin/llvm-config" >> $GITHUB_ENV
-          echo "LLVM_DIR=$LLVM20_PREFIX/lib/cmake/llvm" >> $GITHUB_ENV
-          # Help CMake find packages and C build tools
-          echo "CMAKE_PREFIX_PATH=$LLVM20_PREFIX/lib/cmake:$CMAKE_PREFIX_PATH" >> $GITHUB_ENV
-          echo "LDFLAGS=-L$LLVM20_PREFIX/lib $LDFLAGS" >> $GITHUB_ENV
-          echo "CPPFLAGS=-I$LLVM20_PREFIX/include $CPPFLAGS" >> $GITHUB_ENV
 
 
       - name: Install llvm (Windows)
