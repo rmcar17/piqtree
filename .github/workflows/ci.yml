@@ -43,7 +43,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-15-intel, macos-15, windows-latest] # Intel linux, Intel Mac, ARM Mac, Windows
+        os: [ubuntu-latest, macos-15, windows-latest] # Intel linux, Intel Mac, ARM Mac, Windows
         python-version: ["3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v6
@@ -56,24 +56,24 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache-key: libiqtree-${{ matrix.os }}-${{ needs.build-iqtree.outputs.iqtree-sha }}
 
-      - name: Install llvm (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          brew install llvm
+      # - name: Install llvm (macOS)
+      #   if: runner.os == 'macOS'
+      #   run: |
+      #     brew install llvm
 
-          LLVM_PREFIX="$(brew --prefix llvm)"
-          if [ -z "$LLVM_PREFIX" ]; then
-            echo "Failed to determine llvm prefix via 'brew --prefix llvm'." >&2
-            exit 1
-          fi
+      #     LLVM_PREFIX="$(brew --prefix llvm)"
+      #     if [ -z "$LLVM_PREFIX" ]; then
+      #       echo "Failed to determine llvm prefix via 'brew --prefix llvm'." >&2
+      #       exit 1
+      #     fi
 
-          echo "LLVM_PREFIX=$LLVM_PREFIX" >> $GITHUB_ENV
-          echo "PATH=$LLVM_PREFIX/bin:$PATH" >> $GITHUB_ENV
-          echo "LLVM_CONFIG=$LLVM_PREFIX/bin/llvm-config" >> $GITHUB_ENV
-          echo "LLVM_DIR=$LLVM_PREFIX/lib/cmake/llvm" >> $GITHUB_ENV
-          echo "CMAKE_PREFIX_PATH=$LLVM_PREFIX/lib/cmake:$CMAKE_PREFIX_PATH" >> $GITHUB_ENV
-          echo "LDFLAGS=-L$LLVM_PREFIX/lib" >> $GITHUB_ENV
-          echo "CPPFLAGS=-I$LLVM_PREFIX/include" >> $GITHUB_ENV          
+      #     echo "LLVM_PREFIX=$LLVM_PREFIX" >> $GITHUB_ENV
+      #     echo "PATH=$LLVM_PREFIX/bin:$PATH" >> $GITHUB_ENV
+      #     echo "LLVM_CONFIG=$LLVM_PREFIX/bin/llvm-config" >> $GITHUB_ENV
+      #     echo "LLVM_DIR=$LLVM_PREFIX/lib/cmake/llvm" >> $GITHUB_ENV
+      #     echo "CMAKE_PREFIX_PATH=$LLVM_PREFIX/lib/cmake:$CMAKE_PREFIX_PATH" >> $GITHUB_ENV
+      #     echo "LDFLAGS=-L$LLVM_PREFIX/lib" >> $GITHUB_ENV
+      #     echo "CPPFLAGS=-I$LLVM_PREFIX/include" >> $GITHUB_ENV          
 
       - name: Install llvm (Windows)
         if: runner.os == 'Windows'
