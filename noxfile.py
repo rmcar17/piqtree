@@ -4,7 +4,7 @@ from pathlib import Path
 
 import nox
 
-_py_versions = range(11, 14)
+_py_versions = range(12, 15)
 _python_sessions = [f"3.{v}" for v in _py_versions]
 
 
@@ -58,6 +58,6 @@ def test_docs(session: nox.Session) -> None:
         session.run("python", doctest_setup_path, env=env)
         session.run("pytest", *posargs, env=env)
 
-        session.install("cogent3[extra]", "diverse-seq")
+        session.install("plotly", "ipython", "nbformat", "diverse-seq")
         for py_file in doc_py_files:
             session.run("python", py_file, env=env, silent=True)

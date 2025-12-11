@@ -7,14 +7,8 @@ import sys
 import tempfile
 from collections.abc import Callable
 from functools import wraps
-from typing import TypeVar
-
-from typing_extensions import ParamSpec
 
 from piqtree.exceptions import IqTreeError
-
-Param = ParamSpec("Param")
-RetType = TypeVar("RetType")
 
 
 def _fd_or_fallback(stream: object, fallback_fd: int) -> int:
@@ -38,7 +32,7 @@ def _fd_or_fallback(stream: object, fallback_fd: int) -> int:
         return fallback_fd
 
 
-def iqtree_func(
+def iqtree_func[**Param, RetType](
     func: Callable[Param, RetType],
     *,
     hide_files: bool | None = False,
