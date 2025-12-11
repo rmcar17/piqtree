@@ -66,6 +66,7 @@ jobs:
           CIBW_ARCHS_MACOS: ${{endsWith(matrix.platform_id, 'universal2') && 'universal2' || 'auto'}} 
           CIBW_ARCHS_WINDOWS: ${{endsWith(matrix.platform_id, '_amd64') && 'AMD64' || 'ARM64'}} 
           CIBW_BUILD: "*${{matrix.platform_id}}"
+          CIBW_SKIP: "cp314t-*"
           CIBW_TEST_REQUIRES: pytest pytest-mock
           CIBW_TEST_COMMAND: pytest {package}/tests
 
