@@ -16,10 +16,6 @@ jobs:
         # manylinux x86_64
         - os: ubuntu-latest
           platform_id: manylinux_x86_64
-        
-        # MacOS x86_64
-        - os: macos-15-intel
-          platform_id: macosx_x86_64
 
         # MacOS arm64
         - os: macos-15
@@ -44,11 +40,7 @@ jobs:
       - name: Set macOS Deployment Target
         if: runner.os == 'macOS'
         run: |
-          if [[ "${{ matrix.os }}" == "macos-15-intel" ]]; then
-            echo "MACOSX_DEPLOYMENT_TARGET=15.0" >> $GITHUB_ENV
-          elif [[ "${{ matrix.os }}" == "macos-15" ]]; then
-            echo "MACOSX_DEPLOYMENT_TARGET=15.0" >> $GITHUB_ENV
-          fi
+          echo "MACOSX_DEPLOYMENT_TARGET=15.0" >> $GITHUB_ENV
 
       - name: Install Boost
         if: runner.os == 'Windows'
