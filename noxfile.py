@@ -46,7 +46,7 @@ def test_docs(session: nox.Session) -> None:
     doctest_setup_path = Path("docs/scripts/prepare_doc_test_data.py").resolve()
 
     posargs = list(session.posargs)
-    posargs.extend(["--markdown-docs", *doc_md_files])
+    posargs.extend(["--markdown-docs", *map(str, doc_md_files)])
     env = os.environ.copy()
 
     install_spec = ".[test]"
