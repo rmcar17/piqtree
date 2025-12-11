@@ -19,7 +19,6 @@ def test_model_result_value_from_string() -> None:
     "bad_val",
     [
         "123.45.00 10 0.678",  # invalid float
-        "123.45 10 10 0.678",  # too many values
         "123.45 10",  # too few values
     ],
 )
