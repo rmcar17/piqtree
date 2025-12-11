@@ -35,7 +35,7 @@ def _fd_or_fallback(stream: object, fallback_fd: int) -> int:
 def iqtree_func[**Param, RetType](
     func: Callable[Param, RetType],
     *,
-    hide_files: bool | None = False,
+    hide_files: bool = False,
 ) -> Callable[Param, RetType]:
     """IQ-TREE function wrapper.
 
@@ -45,13 +45,13 @@ def iqtree_func[**Param, RetType](
     ----------
     func : Callable[Param, RetType]
         The IQ-TREE library function.
-    hide_files : bool | None, optional
+    hide_files : bool, optional
         Whether hiding output files is necessary, by default False.
 
     Returns
     -------
     Callable[Param, RetType]
-        The wrappe IQ-TREE function.
+        The wrapped IQ-TREE function.
 
     Raises
     ------

@@ -35,7 +35,7 @@ def _tree_equal(node1: PhyloNode, node2: PhyloNode) -> bool:
     if len(children_group1) != len(children_group2):
         return False
 
-    # recursively check if two PhyloNode have the same name and branch length, so for their children.
+    # recursively check if two PhyloNodes have the same name and branch length, and do the same for their children.
     for child1, child2 in zip(children_group1, children_group2, strict=True):
         if not _tree_equal(child1, child2):
             return False
@@ -63,7 +63,7 @@ def _process_tree_yaml(
             likelihood = float(candidate_likelihood)
             break
     if likelihood is None:
-        msg = "IQ-TREE output malformated, likelihood not found."
+        msg = "IQ-TREE output is malformed, likelihood not found."
         raise ParseIqTreeError(msg)
 
     tree.params["lnL"] = likelihood
@@ -102,7 +102,7 @@ def build_tree(
         The substitution model with base frequencies and rate heterogeneity.
     rand_seed : int | None, optional
         The random seed - None means no seed is used, by default None.
-    bootstrap_replicates : int, optional
+    bootstrap_replicates : int | None, optional
         The number of bootstrap replicates to perform, by default None.
         If 0 is provided, then no bootstrapping is performed.
         At least 1000 is required to perform bootstrapping.
@@ -182,7 +182,7 @@ def fit_tree(
     Returns
     -------
     PhyloNode
-        A phylogenetic tree with same given topology fitted with branch lengths.
+        A phylogenetic tree with the same given topology fitted with branch lengths.
 
     """
     if isinstance(model, str):
@@ -228,7 +228,7 @@ def nj_tree(
     Returns
     -------
     PhyloNode
-        The neigbour joining tree.
+        The neighbour joining tree.
 
     See Also
     --------
@@ -291,7 +291,7 @@ def consensus_tree(
 
     """
     if not 0 <= min_support <= 1:
-        msg = f"Only min support values in the range 0 <= value < 1 are supported, got {min_support}"
+        msg = f"Only min support values in the range 0 <= value <= 1 are supported, got {min_support}"
         raise ValueError(msg)
 
     if not _all_same_taxa_set(trees):
