@@ -22,11 +22,11 @@ class ModelResultValue:
 
     Parameters
     ----------
-    lnL
+    lnL : float
         Log likelihood of the model.
-    nfp
+    nfp : int
         Number of free parameters in the model.
-    tree_length
+    tree_length : float
         Length of the tree (sum of branch lengths).
 
     """
@@ -52,17 +52,17 @@ class ModelFinderResult:
 
     Attributes
     ----------
-    source: str
+    source : str
         Source of the alignment.
-    raw_data: dict[str, Any]
+    raw_data : dict[str, Any]
         Raw data returned by ModelFinder.
-    best_aic: Model
+    best_aic : Model
         The best AIC model.
-    best_aicc: Model
+    best_aicc : Model
         The best AICc model.
-    best_bic: Model
+    best_bic : Model
         The best BIC model.
-    model_stats:
+    model_stats : dict[Model | str, ModelResultValue]
         Semi-processed representation of raw_data.
 
     """

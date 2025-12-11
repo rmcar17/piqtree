@@ -20,7 +20,7 @@ git submodule update --init --recursive
 ./build_tools/build_iqtree.sh
 ```
 
-If the above doesn't work, please re-try the guide on ["Setting up your environment for development"](./environment_setup.md).
+If the above doesn't work, please retry the guide on ["Setting up your environment for development"](./environment_setup.md).
 
 ## The IQ-TREE library doesn't build
 
