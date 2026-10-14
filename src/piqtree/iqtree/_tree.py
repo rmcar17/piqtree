@@ -6,12 +6,12 @@ from typing import Any, cast
 
 import numpy as np
 import yaml
-from _piqtree import iq_build_tree, iq_consensus_tree, iq_fit_tree, iq_nj_tree
 from cogent3 import make_tree
 from cogent3.core.alignment import Alignment
 from cogent3.core.tree import PhyloNode
 from cogent3.evolve.fast_distance import DistanceMatrix
 
+from piqtree._piqtree import iq_build_tree, iq_consensus_tree, iq_fit_tree, iq_nj_tree
 from piqtree.exceptions import ParseIqTreeError
 from piqtree.iqtree._decorator import iqtree_func
 from piqtree.iqtree._parse_tree_parameters import parse_model_parameters
@@ -148,13 +148,13 @@ def build_tree(
 
     yaml_result = yaml.safe_load(
         iq_build_tree(
-            names,
-            seqs,
-            str(model),
-            rand_seed,
-            bootstrap_replicates,
-            num_threads,
-            other_options,
+            names=names,
+            seqs=seqs,
+            model=str(model),
+            rand_seed=rand_seed,
+            bootstrap_replicates=bootstrap_replicates,
+            num_threads=num_threads,
+            other_options=other_options,
         ),
     )
     return _process_tree_yaml(yaml_result, names, model)
@@ -224,14 +224,14 @@ def fit_tree(
 
     yaml_result = yaml.safe_load(
         iq_fit_tree(
-            names,
-            seqs,
-            str(model),
-            newick,
-            bl_fixed,
-            0,
-            num_threads,
-            other_options,
+            names=names,
+            seqs=seqs,
+            model=str(model),
+            tree=newick,
+            bl_fixed=bl_fixed,
+            rand_seed=0,
+            num_threads=num_threads,
+            other_options=other_options,
         ),
     )
     return _process_tree_yaml(yaml_result, names, model)
@@ -267,8 +267,8 @@ def nj_tree(
         raise ValueError(msg)
 
     newick_tree = iq_nj_tree(
-        pairwise_distances.keys(),
-        np.array(pairwise_distances).flatten(),
+        names=list(map(str, pairwise_distances.keys())),
+        distances=np.array(pairwise_distances, dtype=np.float64).flatten(),
     )
 
     tree = make_tree(newick_tree)
@@ -380,7 +380,9 @@ def consensus_tree(
 
     newick_trees = [get_newick(tree) for tree in trees]
 
-    consensus = make_tree(iq_consensus_tree(newick_trees, min_support))
+    consensus = make_tree(
+        iq_consensus_tree(trees=newick_trees, min_support=min_support),
+    )
 
     if support_aggregate is not None:
         _transfer_support(consensus, trees, _SUPPORT_AGGREGATES[support_aggregate])

@@ -1,10 +1,10 @@
 from collections.abc import Sequence
 
 import numpy as np
-from _piqtree import iq_jc_distances
 from cogent3.core.alignment import Alignment
 from cogent3.evolve.fast_distance import DistanceMatrix
 
+from piqtree._piqtree import iq_jc_distances
 from piqtree.iqtree._decorator import iqtree_func
 
 iq_jc_distances = iqtree_func(iq_jc_distances, hide_files=True)
@@ -62,7 +62,9 @@ def jc_distances(
     names = aln.names
     seqs = [str(seq) for seq in aln.iter_seqs(names)]
 
-    distances = np.array(iq_jc_distances(names, seqs, num_threads)).reshape(
+    distances = np.array(
+        iq_jc_distances(names=names, seqs=seqs, num_threads=num_threads),
+    ).reshape(
         (len(names), len(names)),
     )
     return _dists_to_distmatrix(distances, names)

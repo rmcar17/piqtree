@@ -1939,6 +1939,15 @@ wheels = [
 ]
 
 [[package]]
+name = "nanobind"
+version = "3.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/c7/1f/e28fae715401e8f57400e72aeaff4fde12046d31828164f34f61f0816da8/nanobind-3.1.0.tar.gz", hash = "sha256:6661e3dc1434d78781ccf7913442d90361dab395c3424efadb63bbb6ddea7ea3", size = 1145390, upload-time = "2026-09-18T15:59:42.726Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/36/c1/6fd56f7a02a478d54a1a3e6000eccd34b446b1c45cbf0d002fe5d2937126/nanobind-3.1.0-py3-none-any.whl", hash = "sha256:96984dbe8154ffb86e653b1b60aaeed6985c710c5e75ad0279eb87943c66292d", size = 316917, upload-time = "2026-09-18T15:59:37.796Z" },
+]
+
+[[package]]
 name = "narwhals"
 version = "2.27.1"
 source = { registry = "https://pypi.org/simple" }
@@ -2375,8 +2384,8 @@ dev = [
     { name = "cibuildwheel" },
     { name = "delvewheel" },
     { name = "mypy" },
+    { name = "nanobind" },
     { name = "nox" },
-    { name = "pybind11" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "pytest-markdown-docs" },
@@ -2418,6 +2427,7 @@ test = [
 ]
 typing = [
     { name = "mypy" },
+    { name = "nanobind" },
     { name = "nox" },
     { name = "pytest" },
     { name = "pytest-cov" },
@@ -2442,8 +2452,8 @@ dev = [
     { name = "cibuildwheel", specifier = "==4.3.0" },
     { name = "delvewheel", specifier = "==1.13.1" },
     { name = "mypy", specifier = "==2.4.0" },
+    { name = "nanobind", specifier = "==3.1.0" },
     { name = "nox", specifier = ">=2025.2.9" },
-    { name = "pybind11", specifier = "==3.1.0" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "pytest-markdown-docs" },
@@ -2483,6 +2493,7 @@ test = [
 ]
 typing = [
     { name = "mypy", specifier = "==2.4.0" },
+    { name = "nanobind", specifier = "==3.1.0" },
     { name = "nox", specifier = ">=2025.2.9" },
     { name = "pytest" },
     { name = "pytest-cov" },
@@ -2588,15 +2599,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/da/9f/abfd2959e9261dd5217ca8551d4de211ca6ab26fe9b72cf44731ff6c4442/pure_eval-0.2.4.tar.gz", hash = "sha256:260c2774686e651b79f8b8e7fc9d80b3599ea6a66334b47d5f4abb69fc2c0ea1", size = 20563, upload-time = "2026-09-10T21:41:22.836Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/6d/18/83376915176eb058cb86470eb7396388a13350b09a8f233a79303bbcbc5b/pure_eval-0.2.4-py3-none-any.whl", hash = "sha256:96cae060a313cfaad51bb761278bfb0e62dc0248d9315a81173752dc546cd37a", size = 11893, upload-time = "2026-09-10T21:41:21.532Z" },
-]
-
-[[package]]
-name = "pybind11"
-version = "3.1.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/76/f3/95b0f40b31df41dbfe6bb0857419c9442c15839cbac4796f1c26ae0b6081/pybind11-3.1.0.tar.gz", hash = "sha256:a1cc06b524ab3edca51f8ad3895f9c4fa20b8b19283173dff4ae781449dc9639", size = 603746, upload-time = "2026-08-06T23:33:00.675Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/33/fd/8762f7ee3e4e4be6d1d846cffb4916dd9bb02b2f800d3603718a0efe494c/pybind11-3.1.0-py3-none-any.whl", hash = "sha256:b8488090f8acffbcb6b5d6a85571a6827a0a2981ffb75e5a0b27b87c4a6b7dd0", size = 319402, upload-time = "2026-08-06T23:32:59.047Z" },
 ]
 
 [[package]]

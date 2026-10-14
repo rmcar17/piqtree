@@ -1,7 +1,6 @@
 #ifndef _PIQTREE_H
 #define _PIQTREE_H
 
-#include <pybind11/stl.h>
 #include <cstddef>
 
 using namespace std;

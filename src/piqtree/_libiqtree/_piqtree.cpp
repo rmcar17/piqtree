@@ -1,13 +1,20 @@
 #include "_piqtree.h"
-#include <pybind11/numpy.h>
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include <iostream>
+#include <nanobind/nanobind.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/vector.h>
+#include <cstring>
+#include <stdexcept>
 #include <string>
 #include <vector>
-#include "_piqtree.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
+
+using StringList = std::vector<std::string>;
+using DoubleArrayIn =
+    nb::ndarray<const double, nb::ndim<1>, nb::c_contig, nb::device::cpu>;
+using DoubleArrayOut = nb::ndarray<nb::numpy, double, nb::ndim<1>>;
 
 void checkError(char* errorStr) {
   if (errorStr && std::strlen(errorStr) > 0) {
@@ -19,183 +26,208 @@ void checkError(char* errorStr) {
     iqtree_free(errorStr);
 }
 
-namespace PYBIND11_NAMESPACE {
-namespace detail {
-template <>
-struct type_caster<StringArray> {
+/*
+ * Arguments passed to IQ-TREE. These keep the converted Python values alive
+ * for the duration of the call.
+ */
+class StringArrayArg {
  public:
-  PYBIND11_TYPE_CASTER(StringArray, const_name("StringArray"));
-
-  // Conversion from Python to C++
-  bool load(handle src, bool) {
-    /* Extract PyObject from handle */
-    PyObject* source = src.ptr();
-    if (!py::isinstance<py::sequence>(source)) {
-      return false;
+  explicit StringArrayArg(const StringList& strings) {
+    cStrs.reserve(strings.size());
+    for (const auto& str : strings) {
+      cStrs.push_back(str.c_str());
     }
-
-    auto seq = reinterpret_borrow<py::sequence>(src);
-    value.length = seq.size();
-
-    tmpStrings.reserve(value.length);
-    tmpCStrs.reserve(value.length);
-
-    for (size_t i = 0; i < seq.size(); ++i) {
-      auto item = seq[i];
-      if (!py::isinstance<py::str>(item)) {
-        return false;
-      }
-
-      tmpStrings.push_back(item.cast<string>());
-      tmpCStrs.push_back(tmpStrings[i].c_str());
-    }
-
-    value.strings = tmpCStrs.data();
-
-    return true;
+    array.strings = cStrs.data();
+    array.length = cStrs.size();
   }
 
-  // Conversion from C++ to Python
-  static handle cast(StringArray src, return_value_policy, handle) {
-    throw std::runtime_error("Unsupported operation");
-  }
+  StringArray& get() { return array; }
 
  private:
-  vector<string> tmpStrings;
-  vector<const char*> tmpCStrs;
+  std::vector<const char*> cStrs;
+  StringArray array;
 };
 
-template <>
-struct type_caster<DoubleArray> {
+class DoubleArrayArg {
  public:
-  PYBIND11_TYPE_CASTER(DoubleArray, _("DoubleArray"));
-
-  // Conversion from Python to C++
-  bool load(handle src, bool) {
-    if (!py::isinstance<py::array_t<double>>(src)) {
-      return false;  // Only accept numpy arrays of float64
-    }
-
-    auto arr = py::cast<py::array_t<double>>(src);
-    if (arr.ndim() != 1) {
-      return false;  // Only accept 1D arrays
-    }
-
-    value.length = arr.size();
-
-    tmpDoubles.assign(arr.data(), arr.data() + value.length);
-    value.doubles = tmpDoubles.data();
-
-    return true;
+  explicit DoubleArrayArg(const DoubleArrayIn& arr)
+      : doubles(arr.data(), arr.data() + arr.size()) {
+    array.doubles = doubles.data();
+    array.length = doubles.size();
   }
 
-  // Conversion from C++ to Python
-  static handle cast(DoubleArray src, return_value_policy, handle) {
-    throw std::runtime_error("Unsupported operation");
-  }
+  DoubleArray& get() { return array; }
 
  private:
-  vector<double> tmpDoubles;
+  std::vector<double> doubles;
+  DoubleArray array;
 };
 
-template <>
-struct type_caster<IntegerResult> {
- public:
-  PYBIND11_TYPE_CASTER(IntegerResult, _("IntegerResult"));
+/*
+ * Results returned by IQ-TREE. These raise a RuntimeError if IQ-TREE reported
+ * an error, and take ownership of memory allocated by IQ-TREE.
+ */
+int unwrap(const IntegerResult& result) {
+  checkError(result.errorStr);
 
-  // Conversion from Python to C++
-  bool load(handle /* src */, bool /* convert */) {
-    throw std::runtime_error("Unsupported operation");
+  return result.value;
+}
+
+std::string unwrap(const StringResult& result) {
+  checkError(result.errorStr);
+
+  std::string value(result.value);
+  iqtree_free(result.value);
+
+  return value;
+}
+
+DoubleArrayOut unwrap(const DoubleArrayResult& result) {
+  checkError(result.errorStr);
+
+  // The numpy array uses IQ-TREE's memory, which is freed with the array.
+  nb::capsule owner(result.value, [](void* p) noexcept { iqtree_free(p); });
+
+  return DoubleArrayOut(result.value, {result.length}, owner);
+}
+
+/*
+ * Call an IQ-TREE function and convert its result for Python. IQ-TREE can
+ * throw exceptions not derived from std::exception, which nanobind would raise
+ * as a SystemError. These are raised as a RuntimeError like all other errors.
+ */
+template <typename Func>
+auto callIqtree(Func&& func) {
+  try {
+    return unwrap(func());
+  } catch (const std::exception&) {
+    throw;
+  } catch (...) {
+    throw std::runtime_error("Caught an unknown exception!");
   }
-
-  // Conversion from C++ to Python
-  static handle cast(const IntegerResult& src, return_value_policy, handle) {
-    checkError(src.errorStr);
-
-    return py::int_(src.value).release();
-  }
-};
-
-template <>
-struct type_caster<StringResult> {
- public:
-  // Indicate that this caster only supports conversion from C++ to Python
-  PYBIND11_TYPE_CASTER(StringResult, _("StringResult"));
-
-  // Reject Python to C++ conversion
-  bool load(handle src, bool) {
-    throw std::runtime_error("Unsupported operation");
-  }
-
-  // Conversion from C++ to Python
-  static handle cast(const StringResult& src, return_value_policy, handle) {
-    checkError(src.errorStr);
-
-    PyObject* py_str = PyUnicode_FromString(src.value);
-    if (!py_str)
-      throw error_already_set();
-
-    iqtree_free(src.value);
-
-    return handle(py_str);
-  }
-};
-
-template <>
-struct type_caster<DoubleArrayResult> {
- public:
-  PYBIND11_TYPE_CASTER(DoubleArrayResult, _("DoubleArrayResult"));
-
-  // Conversion from Python to C++
-  bool load(handle src, bool) {
-    throw std::runtime_error("Unsupported operation");
-  }
-
-  // Conversion from C++ to Python
-  static handle cast(DoubleArrayResult src, return_value_policy, handle) {
-    checkError(src.errorStr);
-
-    auto result = py::array_t<double>(src.length);
-
-    std::memcpy(result.mutable_data(), src.value, src.length * sizeof(double));
-    iqtree_free(src.value);
-
-    return result.release();
-  }
-};
-}  // namespace detail
-}  // namespace PYBIND11_NAMESPACE
+}
 
 int mine() {
   return 42;
 }
 
-PYBIND11_MODULE(_piqtree, m) {
+NB_MODULE(_piqtree, m) {
   m.doc() = "_piqtree - Linking IQ-TREE to Python!";
 
-  m.attr("__iqtree_version__") = version();
+  m.attr("__iqtree_version__") = callIqtree(version);
 
-  m.def("iq_robinson_fould", &robinson_fould,
-        "Calculates the robinson fould distance between two trees");
-  m.def("iq_random_tree", &random_tree,
-        "Generates a set of random phylogenetic trees. tree_gen_mode "
-        "allows:\"YULE_HARDING\", \"UNIFORM\", \"CATERPILLAR\", \"BALANCED\", "
-        "\"BIRTH_DEATH\", \"STAR_TREE\".");
-  m.def("iq_build_tree", &build_tree,
-        "Perform phylogenetic analysis on the input alignment (in string "
-        "format). With estimation of the best topology.");
-  m.def("iq_fit_tree", &fit_tree,
-        "Perform phylogenetic analysis on the input alignment (in string "
-        "format). With restriction to the input toplogy.");
-  m.def("iq_model_finder", &modelfinder,
-        "Find optimal model for an alignment.");
-  m.def("iq_jc_distances", &build_distmatrix,
-        "Construct pairwise distance matrix for alignment.");
-  m.def("iq_nj_tree", &build_njtree,
-        "Build neighbour-joining tree from distance matrix.");
-  m.def("iq_consensus_tree", &consensus_tree,
-        "Compute a consensus tree from a sequence of trees.");
-  m.def("iq_simulate_alignment", &simulate_alignment,
-        "Simulate an alignment with AliSim.");
+  m.def(
+      "iq_robinson_fould",
+      [](const char* tree1, const char* tree2) {
+        return callIqtree([&] { return robinson_fould(tree1, tree2); });
+      },
+      "tree1"_a, "tree2"_a,
+      "Calculates the robinson fould distance between two trees");
+  m.def(
+      "iq_random_tree",
+      [](int num_taxa, const char* tree_gen_mode, int num_trees,
+         int rand_seed) {
+        return callIqtree([&] {
+          return random_tree(num_taxa, tree_gen_mode, num_trees, rand_seed);
+        });
+      },
+      "num_taxa"_a, "tree_gen_mode"_a, "num_trees"_a, "rand_seed"_a,
+      "Generates a set of random phylogenetic trees. tree_gen_mode "
+      "allows:\"YULE_HARDING\", \"UNIFORM\", \"CATERPILLAR\", \"BALANCED\", "
+      "\"BIRTH_DEATH\", \"STAR_TREE\".");
+  m.def(
+      "iq_build_tree",
+      [](const StringList& names, const StringList& seqs, const char* model,
+         int rand_seed, int bootstrap_replicates, int num_threads,
+         const char* other_options) {
+        StringArrayArg names_arg(names), seqs_arg(seqs);
+        return callIqtree([&] {
+          return build_tree(names_arg.get(), seqs_arg.get(), model, rand_seed,
+                            bootstrap_replicates, num_threads, other_options);
+        });
+      },
+      "names"_a, "seqs"_a, "model"_a, "rand_seed"_a, "bootstrap_replicates"_a,
+      "num_threads"_a, "other_options"_a,
+      "Perform phylogenetic analysis on the input alignment (in string "
+      "format). With estimation of the best topology.");
+  m.def(
+      "iq_fit_tree",
+      [](const StringList& names, const StringList& seqs, const char* model,
+         const char* tree, bool bl_fixed, int rand_seed, int num_threads,
+         const char* other_options) {
+        StringArrayArg names_arg(names), seqs_arg(seqs);
+        return callIqtree([&] {
+          return fit_tree(names_arg.get(), seqs_arg.get(), model, tree,
+                          bl_fixed, rand_seed, num_threads, other_options);
+        });
+      },
+      "names"_a, "seqs"_a, "model"_a, "tree"_a, "bl_fixed"_a, "rand_seed"_a,
+      "num_threads"_a, "other_options"_a,
+      "Perform phylogenetic analysis on the input alignment (in string "
+      "format). With restriction to the input toplogy.");
+  m.def(
+      "iq_model_finder",
+      [](const StringList& names, const StringList& seqs, int rand_seed,
+         const char* model_set, const char* freq_set, const char* rate_set,
+         int num_threads, const char* other_options) {
+        StringArrayArg names_arg(names), seqs_arg(seqs);
+        return callIqtree([&] {
+          return modelfinder(names_arg.get(), seqs_arg.get(), rand_seed,
+                             model_set, freq_set, rate_set, num_threads,
+                             other_options);
+        });
+      },
+      "names"_a, "seqs"_a, "rand_seed"_a, "model_set"_a, "freq_set"_a,
+      "rate_set"_a, "num_threads"_a, "other_options"_a,
+      "Find optimal model for an alignment.");
+  m.def(
+      "iq_jc_distances",
+      [](const StringList& names, const StringList& seqs, int num_threads) {
+        StringArrayArg names_arg(names), seqs_arg(seqs);
+        return callIqtree([&] {
+          return build_distmatrix(names_arg.get(), seqs_arg.get(), num_threads);
+        });
+      },
+      "names"_a, "seqs"_a, "num_threads"_a,
+      "Construct pairwise distance matrix for alignment.");
+  m.def(
+      "iq_nj_tree",
+      [](const StringList& names, const DoubleArrayIn& distances) {
+        StringArrayArg names_arg(names);
+        DoubleArrayArg distances_arg(distances);
+        return callIqtree(
+            [&] { return build_njtree(names_arg.get(), distances_arg.get()); });
+      },
+      "names"_a, "distances"_a,
+      "Build neighbour-joining tree from distance matrix.");
+  m.def(
+      "iq_consensus_tree",
+      [](const StringList& trees, double min_support) {
+        StringArrayArg trees_arg(trees);
+        return callIqtree(
+            [&] { return consensus_tree(trees_arg.get(), min_support); });
+      },
+      "trees"_a, "min_support"_a,
+      "Compute a consensus tree from a sequence of trees.");
+  m.def(
+      "iq_simulate_alignment",
+      [](const char* tree, const char* subst_model, int rand_seed,
+         const char* partition_info, const char* partition_type, int seq_length,
+         double insertion_rate, double deletion_rate, const char* root_seq,
+         int num_threads, const char* insertion_size_distribution,
+         const char* deletion_size_distribution, int population_size) {
+        return callIqtree([&] {
+          return simulate_alignment(
+              tree, subst_model, rand_seed, partition_info, partition_type,
+              seq_length, insertion_rate, deletion_rate, root_seq, num_threads,
+              insertion_size_distribution, deletion_size_distribution,
+              population_size);
+        });
+      },
+      "tree"_a, "subst_model"_a, "rand_seed"_a, "partition_info"_a,
+      "partition_type"_a, "seq_length"_a, "insertion_rate"_a, "deletion_rate"_a,
+      "root_seq"_a, "num_threads"_a, "insertion_size_distribution"_a,
+      "deletion_size_distribution"_a, "population_size"_a,
+      "Simulate an alignment with AliSim.");
   m.def("mine", &mine, "The meaning of life, the universe (and everything)!");
 }

@@ -2,10 +2,10 @@
 
 from enum import Enum, auto
 
-from _piqtree import iq_random_tree
 from cogent3 import make_tree
 from cogent3.core.tree import PhyloNode
 
+from piqtree._piqtree import iq_random_tree
 from piqtree.iqtree._decorator import iqtree_func
 from piqtree.util import process_rand_seed_nonzero
 
@@ -49,5 +49,10 @@ def random_tree(
     """
     rand_seed = process_rand_seed_nonzero(rand_seed)
 
-    newick = iq_random_tree(num_taxa, tree_mode.name, 1, rand_seed).strip()
+    newick = iq_random_tree(
+        num_taxa=num_taxa,
+        tree_gen_mode=tree_mode.name,
+        num_trees=1,
+        rand_seed=rand_seed,
+    ).strip()
     return make_tree(newick)

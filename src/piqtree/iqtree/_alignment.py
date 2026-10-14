@@ -1,11 +1,11 @@
 from typing import cast
 
 import yaml
-from _piqtree import iq_simulate_alignment
 from cogent3 import make_aligned_seqs
 from cogent3.core.alignment import Alignment
 from cogent3.core.tree import PhyloNode
 
+from piqtree._piqtree import iq_simulate_alignment
 from piqtree.distribution import IndelDistribution
 from piqtree.exceptions import ParseIqTreeError
 from piqtree.iqtree._decorator import iqtree_func
@@ -91,19 +91,19 @@ def simulate_alignment(
 
     yaml_result = yaml.safe_load(
         iq_simulate_alignment(
-            newick_tree,
-            str(model),
-            rand_seed,
-            "",
-            "",
-            length,
-            insertion_rate,
-            deletion_rate,
-            root_seq,
-            num_threads,
-            str(insertion_size_distribution),
-            str(deletion_size_distribution),
-            -1,
+            tree=newick_tree,
+            subst_model=str(model),
+            rand_seed=rand_seed,
+            partition_info="",
+            partition_type="",
+            seq_length=length,
+            insertion_rate=insertion_rate,
+            deletion_rate=deletion_rate,
+            root_seq=root_seq,
+            num_threads=num_threads,
+            insertion_size_distribution=str(insertion_size_distribution),
+            deletion_size_distribution=str(deletion_size_distribution),
+            population_size=-1,
         ),
     )
 

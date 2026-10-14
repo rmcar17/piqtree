@@ -12,9 +12,8 @@ def _add_dll_path() -> None:
 _add_dll_path()
 del _add_dll_path
 
-from _piqtree import __iqtree_version__
-
 from piqtree._data import dataset_names, download_dataset
+from piqtree._piqtree import __iqtree_version__
 from piqtree.iqtree import (
     ModelFinderResult,
     TreeGenMode,
