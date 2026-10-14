@@ -1,6 +1,6 @@
 name: Build Wheels
 
-on: [workflow_dispatch]
+on: [workflow_dispatch, workflow_call]
 
 permissions:
   contents: read
@@ -31,17 +31,6 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
-      - name: Set up QEMU for Linux ARM builds
-        if: ${{runner.os == 'Linux' && endsWith(matrix.platform_id, '_aarch64')}}
-        uses: docker/setup-qemu-action@v4
-        with:
-          platforms: arm64
-      
-      - name: Set macOS Deployment Target
-        if: runner.os == 'macOS'
-        run: |
-          echo "MACOSX_DEPLOYMENT_TARGET=15.0" >> $GITHUB_ENV
-
       - name: Install Boost
         if: runner.os == 'Windows'
         uses: MarkusJx/install-boost@v2.6.0
@@ -57,20 +46,9 @@ jobs:
 
       - name: Build Wheels
         uses: pypa/cibuildwheel@v4.3.1
-        env: # Can specify per os - e.g. CIBW_BEFORE_ALL_LINUX, CIBW_BEFORE_ALL_MACOS, CIBW_BEFORE_ALL_WINDOWS 
-          CIBW_BEFORE_ALL_LINUX: ./build_tools/before_all_linux.sh
-          CIBW_BEFORE_ALL_MACOS: ./build_tools/before_all_mac.sh
-          CIBW_BEFORE_ALL_WINDOWS: bash ./build_tools/before_all_windows.sh
-          CIBW_ENVIRONMENT_WINDOWS: Boost_INCLUDE_DIR='${{ steps.install-boost.outputs.BOOST_ROOT }}/include' Boost_LIBRARY_DIRS='${{ steps.install-boost.outputs.BOOST_ROOT }}/lib'
-          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >-
-            delvewheel repair --add-path src/piqtree/_libiqtree -w {dest_dir} {wheel}
-          CIBW_ARCHS_LINUX: ${{endsWith(matrix.platform_id, '_x86_64') && 'x86_64' || 'aarch64'}} 
-          CIBW_ARCHS_MACOS: ${{endsWith(matrix.platform_id, 'universal2') && 'universal2' || 'auto'}} 
-          CIBW_ARCHS_WINDOWS: ${{endsWith(matrix.platform_id, '_amd64') && 'AMD64' || 'ARM64'}} 
+        env:
           CIBW_BUILD: "*${{matrix.platform_id}}"
-          CIBW_SKIP: "cp314t-*"
-          CIBW_TEST_REQUIRES: pytest pytest-mock
-          CIBW_TEST_COMMAND: pytest {package}/tests
+          CIBW_ENVIRONMENT_WINDOWS: Boost_INCLUDE_DIR='${{ steps.install-boost.outputs.BOOST_ROOT }}/include' Boost_LIBRARY_DIRS='${{ steps.install-boost.outputs.BOOST_ROOT }}/lib'
 
       - name: Upload Wheels
         uses: actions/upload-artifact@v7

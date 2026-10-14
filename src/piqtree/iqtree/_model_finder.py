@@ -5,10 +5,10 @@ from collections.abc import Iterable
 from typing import Any, cast
 
 import yaml
-from _piqtree import iq_model_finder
 from cogent3.core.alignment import Alignment
 from scinexus.misc import get_object_provenance
 
+from piqtree._piqtree import iq_model_finder
 from piqtree.iqtree._decorator import iqtree_func
 from piqtree.model import Model, make_model
 from piqtree.util import process_rand_seed_nonzero, validate_other_options
@@ -192,14 +192,14 @@ def model_finder(
 
     raw = yaml.safe_load(
         iq_model_finder(
-            names,
-            seqs,
-            rand_seed,
-            ",".join(model_set),
-            ",".join(freq_set),
-            ",".join(rate_set),
-            num_threads,
-            other_options,
+            names=names,
+            seqs=seqs,
+            rand_seed=rand_seed,
+            model_set=",".join(model_set),
+            freq_set=",".join(freq_set),
+            rate_set=",".join(rate_set),
+            num_threads=num_threads,
+            other_options=other_options,
         ),
     )
     return ModelFinderResult(raw_data=raw, source=source)
