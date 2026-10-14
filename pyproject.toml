@@ -113,6 +113,25 @@ wheel.exclude = [
 provider = "scikit_build_core.metadata.regex"
 input = "src/piqtree/__init__.py"
 
+[tool.cibuildwheel]
+# Free-threaded Python can't use abi3 wheels.
+skip = "cp3??t-*"
+# The abi3 wheel built for the oldest Python is reused for (and tested on) the
+# newer versions.
+test-groups = ["test"]
+test-command = "pytest {package}/tests"
+
+[tool.cibuildwheel.linux]
+before-all = "./build_tools/before_all_linux.sh"
+
+[tool.cibuildwheel.macos]
+before-all = "./build_tools/before_all_mac.sh"
+environment = { MACOSX_DEPLOYMENT_TARGET = "15.0" }
+
+[tool.cibuildwheel.windows]
+before-all = "bash ./build_tools/before_all_windows.sh"
+repair-wheel-command = "delvewheel repair --add-path src/piqtree/_libiqtree -w {dest_dir} {wheel}"
+
 [tool.uv]
 # The C++ extension is compiled at install time, so rebuild piqtree whenever
 # the extension source, the IQ-TREE library or the version changes.
