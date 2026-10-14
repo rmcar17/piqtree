@@ -41,7 +41,32 @@ def type_check(session: nox.Session) -> None:
     env = os.environ.copy()
 
     _uv_sync(session, "--no-editable", "--group", "typing")
+    _check_stub(session)
     session.run("mypy", "src", "tests", *posargs, env=env)
+
+
+_STUB = Path("src/piqtree/_piqtree.pyi")
+_STUBGEN = (
+    "python",
+    "-m",
+    "nanobind.stubgen",
+    "-q",
+    "--exclude-values",
+    "-m",
+    "piqtree._piqtree",
+)
+
+
+def _check_stub(session: nox.Session) -> None:
+    """Check the committed stub for the C++ extension is up to date."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        generated = Path(tmpdir) / _STUB.name
+        session.run(*_STUBGEN, "-o", str(generated))
+        if generated.read_text() != _STUB.read_text():
+            session.error(
+                f"{_STUB} is out of date. Regenerate it by running:\n"
+                f"    uv run {' '.join(_STUBGEN)} -o {_STUB}",
+            )
 
 
 @nox.session(python=_python_sessions)
