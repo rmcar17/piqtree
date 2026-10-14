@@ -109,8 +109,9 @@ wheel.exclude = [
     "piqtree/_libiqtree/*.lib"
 ]
 
-[tool.scikit-build.metadata.version]
+[[tool.dynamic-metadata]]
 provider = "scikit_build_core.metadata.regex"
+field = "version"
 input = "src/piqtree/__init__.py"
 
 [tool.cibuildwheel]
