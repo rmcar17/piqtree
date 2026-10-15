@@ -5,10 +5,13 @@ import os
 import pathlib
 import sys
 import tempfile
+import threading
 from collections.abc import Callable
 from functools import wraps
 
 from piqtree.exceptions import IqTreeError
+
+_iqtree_lock = threading.Lock()
 
 
 def _fd_or_fallback(stream: object, fallback_fd: int) -> int:
@@ -62,51 +65,52 @@ def iqtree_func[**Param, RetType](
 
     @wraps(func)
     def wrapper_iqtree_func(*args: Param.args, **kwargs: Param.kwargs) -> RetType:
-        # Flush stdout and stderr
-        sys.stdout.flush()
-        sys.stderr.flush()
-
-        # Fetch file descriptors
-        out_fd = _fd_or_fallback(sys.stdout, 1)
-        err_fd = _fd_or_fallback(sys.stderr, 2)
-
-        # Save original stdout and stderr file descriptors
-        saved_stdout_fd = os.dup(out_fd)
-        saved_stderr_fd = os.dup(err_fd)
-
-        # Open /dev/null (or NUL on Windows) as destination for stdout and stderr
-        devnull_fd = os.open(os.devnull, os.O_WRONLY)
-
-        if hide_files:
-            original_dir = pathlib.Path.cwd()
-            tempdir = tempfile.TemporaryDirectory(prefix=f"piqtree_{func.__name__}")
-            os.chdir(tempdir.name)
-
-        try:
-            # Replace stdout and stderr with /dev/null
-            os.dup2(devnull_fd, out_fd)
-            os.dup2(devnull_fd, err_fd)
-
-            # Call the wrapped function
-            return func(*args, **kwargs)
-        except RuntimeError as e:
-            raise IqTreeError(e) from None
-        finally:
+        with _iqtree_lock:
             # Flush stdout and stderr
             sys.stdout.flush()
             sys.stderr.flush()
 
-            # Restore stdout and stderr
-            os.dup2(saved_stdout_fd, out_fd)
-            os.dup2(saved_stderr_fd, err_fd)
+            # Fetch file descriptors
+            out_fd = _fd_or_fallback(sys.stdout, 1)
+            err_fd = _fd_or_fallback(sys.stderr, 2)
 
-            # Close the devnull file descriptor, and duplicated file descriptors
-            os.close(devnull_fd)
-            os.close(saved_stdout_fd)
-            os.close(saved_stderr_fd)
+            # Save original stdout and stderr file descriptors
+            saved_stdout_fd = os.dup(out_fd)
+            saved_stderr_fd = os.dup(err_fd)
+
+            # Open /dev/null (or NUL on Windows) as destination for stdout and stderr
+            devnull_fd = os.open(os.devnull, os.O_WRONLY)
 
             if hide_files:
-                os.chdir(original_dir)
-                tempdir.cleanup()
+                original_dir = pathlib.Path.cwd()
+                tempdir = tempfile.TemporaryDirectory(prefix=f"piqtree_{func.__name__}")
+                os.chdir(tempdir.name)
+
+            try:
+                # Replace stdout and stderr with /dev/null
+                os.dup2(devnull_fd, out_fd)
+                os.dup2(devnull_fd, err_fd)
+
+                # Call the wrapped function
+                return func(*args, **kwargs)
+            except RuntimeError as e:
+                raise IqTreeError(e) from None
+            finally:
+                # Flush stdout and stderr
+                sys.stdout.flush()
+                sys.stderr.flush()
+
+                # Restore stdout and stderr
+                os.dup2(saved_stdout_fd, out_fd)
+                os.dup2(saved_stderr_fd, err_fd)
+
+                # Close the devnull file descriptor, and duplicated file descriptors
+                os.close(devnull_fd)
+                os.close(saved_stdout_fd)
+                os.close(saved_stderr_fd)
+
+                if hide_files:
+                    os.chdir(original_dir)
+                    tempdir.cleanup()
 
     return wrapper_iqtree_func

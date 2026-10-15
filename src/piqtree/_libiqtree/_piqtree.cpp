@@ -4,6 +4,7 @@
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/vector.h>
 #include <cstring>
+#include <mutex>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -90,6 +91,16 @@ DoubleArrayOut unwrap(const DoubleArrayResult& result) {
 
   return DoubleArrayOut(result.value, {result.length}, owner);
 }
+std::mutex iqtreeMutex;
+
+template <typename Func>
+auto runIqtree(Func& func) {
+#ifdef NB_FREE_THREADED
+  nb::gil_scoped_release release;
+#endif
+  std::lock_guard<std::mutex> lock(iqtreeMutex);
+  return func();
+}
 
 /*
  * Call an IQ-TREE function and convert its result for Python. IQ-TREE can
@@ -99,7 +110,7 @@ DoubleArrayOut unwrap(const DoubleArrayResult& result) {
 template <typename Func>
 auto callIqtree(Func&& func) {
   try {
-    return unwrap(func());
+    return unwrap(runIqtree(func));
   } catch (const std::exception&) {
     throw;
   } catch (...) {

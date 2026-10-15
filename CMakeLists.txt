@@ -51,7 +51,7 @@ foreach(file IN LISTS IQTREE_FILES)
 endforeach()
 
 # STABLE_ABI builds an abi3 extension, so one wheel supports Python >= 3.12.
-nanobind_add_module(_piqtree STABLE_ABI NB_STATIC
+nanobind_add_module(_piqtree STABLE_ABI FREE_THREADED NB_STATIC
                     src/piqtree/_libiqtree/_piqtree.cpp)
 target_link_libraries(_piqtree PRIVATE iqtree)
 

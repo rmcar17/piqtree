@@ -6,6 +6,7 @@ import nox
 
 _py_versions = range(12, 15)
 _python_sessions = [f"3.{v}" for v in _py_versions]
+_free_threaded_sessions = ["3.14t"]
 
 nox.options.default_venv_backend = "uv"
 # Always use uv-managed Python builds, rather than whatever interpreter happens
@@ -26,7 +27,7 @@ def _uv_sync(session: nox.Session, *args: str) -> None:
     )
 
 
-@nox.session(python=_python_sessions)
+@nox.session(python=_python_sessions + _free_threaded_sessions)
 def test(session: nox.Session) -> None:
     posargs = list(session.posargs)
     env = os.environ.copy()

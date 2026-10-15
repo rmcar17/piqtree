@@ -44,6 +44,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Free Threading :: 2 - Beta",
 
     "Typing :: Typed"
 ]
@@ -115,8 +116,10 @@ field = "version"
 input = "src/piqtree/__init__.py"
 
 [tool.cibuildwheel]
-# Free-threaded Python can't use abi3 wheels.
-skip = "cp3??t-*"
+# Free-threaded Python can't use abi3 wheels, so a wheel is built for each
+# free-threaded version. Free-threaded 3.15 is skipped until all dependencies
+# support it.
+skip = "cp315t-*"
 # The abi3 wheel built for the oldest Python is reused for (and tested on) the
 # newer versions.
 test-groups = ["test"]
