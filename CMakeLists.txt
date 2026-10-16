@@ -75,7 +75,11 @@ endif()
 
 install(TARGETS _piqtree LIBRARY DESTINATION "${PACKAGE_DIR}")
 
-if(WIN32)
+# Wheels built by cibuildwheel turn this off, as delvewheel vendors the DLLs
+# under mangled names instead.
+option(PIQTREE_BUNDLE_DLLS "Install IQ-TREE's DLLs into piqtree/_libiqtree" ON)
+
+if(WIN32 AND PIQTREE_BUNDLE_DLLS)
   # Bundle iqtree.dll and the (non-system) DLLs it depends on, searching PATH.
   file(TO_CMAKE_PATH "$ENV{PATH}" dll_search_path)
   install(
@@ -84,7 +88,8 @@ if(WIN32)
   install(
     RUNTIME_DEPENDENCY_SET iqtree_deps
     PRE_EXCLUDE_REGEXES "api-ms-.*" "ext-ms-.*"
-    POST_EXCLUDE_REGEXES ".*/[Ss][Yy][Ss][Tt][Ee][Mm]32/.*"
+    # Paths may mix separators (e.g. C:\Windows\system32/kernel32.dll).
+    POST_EXCLUDE_REGEXES ".*[/\\\\][Ss][Yy][Ss][Tt][Ee][Mm]32[/\\\\].*"
     DIRECTORIES "${LIBRARY_DIR}" ${dll_search_path}
     RUNTIME DESTINATION "${PACKAGE_DIR}/_libiqtree")
 endif()

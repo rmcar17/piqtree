@@ -3,9 +3,10 @@
 
 def _add_dll_path() -> None:
     import os
+    from pathlib import Path
 
-    if "add_dll_directory" in dir(os):
-        dll_folder = os.path.join(os.path.dirname(__file__), "_libiqtree")
+    dll_folder = Path(__file__).parent / "_libiqtree"
+    if "add_dll_directory" in dir(os) and dll_folder.is_dir():
         os.add_dll_directory(dll_folder)  # type: ignore[attr-defined]
 
 
