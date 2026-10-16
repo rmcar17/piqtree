@@ -131,6 +131,8 @@ environment = { MACOSX_DEPLOYMENT_TARGET = "15.0" }
 
 [tool.cibuildwheel.windows]
 before-all = "bash ./build_tools/before_all_windows.sh"
+# delvewheel vendors IQ-TREE's DLLs, so don't also install them via CMake.
+config-settings = { "cmake.define.PIQTREE_BUNDLE_DLLS" = "OFF" }
 repair-wheel-command = "delvewheel repair --add-path src/piqtree/_libiqtree -w {dest_dir} {wheel}"
 
 [tool.uv]

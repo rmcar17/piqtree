@@ -16,7 +16,11 @@ jobs:
         # manylinux x86_64
         - os: ubuntu-latest
           platform_id: manylinux_x86_64
-        
+
+        # manylinux aarch64
+        - os: ubuntu-24.04-arm
+          platform_id: manylinux_aarch64
+
         # MacOS arm64
         - os: macos-15
           platform_id: macosx_arm64

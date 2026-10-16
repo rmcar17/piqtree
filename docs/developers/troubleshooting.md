@@ -9,7 +9,7 @@ There could be several reasons `piqtree` doesn't install correctly.
 
 ### Check your operating system is supported
 
-At this stage, we currently only support x86-64 linux, x86-64 Windows, and ARM macOS.
+At this stage, we currently only support x86-64 and ARM linux, x86-64 Windows, and ARM macOS.
 
 ### Check the IQ-TREE library is up-to-date
 
@@ -28,7 +28,7 @@ There could be several reasons `piqtree` doesn't build.
 
 ### Check your operating system is supported
 
-At this stage, we currently only support x86-64 linux, x86-64 Windows, and ARM macOS.
+At this stage, we currently only support x86-64 and ARM linux, x86-64 Windows, and ARM macOS.
 
 ### Check dependencies have been installed
 
